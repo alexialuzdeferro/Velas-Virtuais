@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Velas Virtuais — Alexia Luz de Ferro</title>
+  <style>
+    body {
+      margin:0; 
+      min-height:100vh; 
+      font-family: Inter, sans-serif;
+      background:#0b0909; 
+      color:#fff;
+      display:flex; 
+      align-items:center; 
+      justify-content:center;
+      padding:20px;
+    }
+    .app {width:100%;max-width:900px}
+    h1 {margin:0;font-size:1.3rem}
+    .lead {color:#bbb;font-size:0.95rem;margin:6px 0 14px}
+
+    .grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:18px}
+    .candle {
+      background:#1b1a1a;
+      padding:16px;border-radius:16px;
+      display:flex;flex-direction:column;align-items:center;gap:8px;
+      box-shadow:0 6px 16px rgba(0,0,0,0.6);
+    }
+    .wax {
+      width:70px;height:120px;border-radius:18px;
+      display:flex;align-items:flex-start;justify-content:center;
+      position:relative;cursor:pointer;
+    }
+    .wick {width:4px;height:14px;background:#3a2f2f;border-radius:2px;margin-top:6px;z-index:2}
+    .flame {position:absolute;top:4px;z-index:3;opacity:0;transition:opacity .25s}
+    .flame.lit {opacity:1;animation:flicker 1s infinite}
+    @keyframes flicker {
+      0%{transform:translateY(0) scale(1)}
+      50%{transform:translateY(-2px) scale(1.05)}
+      100%{transform:translateY(0) scale(1)}
+    }
+    .phrase {font-size:0.85rem;text-align:center;color:#ccc;min-height:38px}
+    .phrase strong {color:#fff}
+    #counters, #visitorBox {margin-top:12px;font-size:0.9rem;color:#bbb}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>Velas Virtuais — Alexia Luz de Ferro</h1>
+    <p class="lead">Clique em uma vela para acender/apagar. Cada uma traz uma bênção.</p>
+
+    <section class="grid" id="grid"></section>
+
+    <p id="counters">Acendidas: 0 | Apagadas: 0</p>
+    <p id="visitorBox">Visitantes: <span id="visitorCount">0</span></p>
+  </div>
+
+  <!-- Sons -->
+  <audio id="soundOn" preload="auto"><source src="acender.mp3" type="audio/mpeg"></audio>
+  <audio id="soundOff" preload="auto"><source src="apagar.mp3" type="audio/mpeg"></audio>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "SUA_API_KEY",
+      authDomain: "SEU_PROJETO.firebaseapp.com",
+      databaseURL: "https://SEU_PROJETO.firebaseio.com",
+      projectId: "SEU_PROJETO",
+      storageBucket: "SEU_PROJETO.appspot.com",
+      messagingSenderId: "SEU_ID",
+      appId: "SEU_APP_ID"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const visitorRef = db.ref('visitantes');
+    visitorRef.transaction(c => (c||0)+1);
+    visitorRef.on('value', snap=>{
+      document.getElementById('visitorCount').innerText = snap.val()||0;
+    });
+  </script>
+
+  <script>
+    const PHRASES = [
+      'Proteção e luz no seu caminho.',
+      'Mojuba — que a força te acompanhe.',
+      'Que o amor cure e guarde seu passo.',
+      'Aviso: seja forte, caminhe com cuidado.',
+      'Que as encruzilhadas se abram a seu favor.',
+      'Laroyê — salve as mães, salve a luz.'
+    ];
+
+    // cores das velas
+    const COLORS = [
+      ["#fff","#fff"],           // branca
+      ["#b71c1c","#b71c1c"],     // vermelha
+      ["#000","#000"],           // preta
+      ["#ffeb3b","#ffeb3b"],     // amarela
+      ["#b71c1c","#000"],        // vermelha + preta
+      ["#b71c1c","#ffeb3b"]      // vermelha + amarela
+    ];
+
+    let acesasCount = parseInt(localStorage.getItem('acesas')||'0');
+    let apagadasCount = parseInt(localStorage.getItem('apagadas')||'0');
+
+    function updateCounters(){
+      document.getElementById('counters').innerText = `Acendidas: ${acesasCount} | Apagadas: ${apagadasCount}`;
+    }
+
+    function createCandle(index){
+      const wrap = document.createElement('div');wrap.className='candle';
+      const wax = document.createElement('div');wax.className='wax';
+      wax.style.background=`linear-gradient(${COLORS[index][0]},${COLORS[index][1]})`;
+
+      const flame = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      flame.setAttribute('viewBox','0 0 24 40');
+      flame.setAttribute('width','34');
+      flame.classList.add('flame');
+      flame.innerHTML = `<path d="M12 2 C8 10 18 14 12 28 C6 14 16 10 12 2 Z" fill="url(#grad${index})"/>`;
+
+      const wick = document.createElement('div');wick.className='wick';
+      wax.appendChild(flame);wax.appendChild(wick);
+
+      const phrase = document.createElement('div');phrase.className='phrase';
+      phrase.innerHTML = `<strong>${PHRASES[index%PHRASES.length]}</strong>`;
+
+      wrap.appendChild(wax);wrap.appendChild(phrase);
+
+      wax.addEventListener('click', ()=>{
+        const isLit = flame.classList.toggle('lit');
+        document.getElementById(isLit ? 'soundOn':'soundOff').play();
+        if(isLit){acesasCount++;}else{apagadasCount++;}
+        localStorage.setItem('acesas',acesasCount);
+        localStorage.setItem('apagadas',apagadasCount);
+        updateCounters();
+      });
+
+      return wrap;
+    }
+
+    function render(){
+      const grid=document.getElementById('grid');
+      grid.innerHTML='';
+      for(let i=0;i<6;i++){grid.appendChild(createCandle(i));}
+      updateCounters();
+    }
+    render();
+  </script>
+</body>
+</html>
