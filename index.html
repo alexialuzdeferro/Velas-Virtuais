@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Velas Virtuais — de sua Pombagira</title>
+  <title>Velas Virtuais de sua Pombagira</title>
   <style>
     * {
       box-sizing: border-box;
@@ -177,14 +177,15 @@
       flex-wrap: wrap;
     }
     
-    #counters, #visitorBox {
-      font-size: 1rem;
-      color: #bbb;
+    #counters {
+      font-size: 1.1rem;
+      color: #ffa500;
       background: rgba(0, 0, 0, 0.3);
-      padding: 12px 20px;
-      border-radius: 12px;
+      padding: 15px 25px;
+      border-radius: 15px;
       display: inline-block;
-      min-width: 180px;
+      min-width: 250px;
+      box-shadow: 0 0 15px rgba(255, 165, 0, 0.3);
     }
     
     .footer {
@@ -192,21 +193,25 @@
       color: #777;
       font-size: 0.9rem;
     }
+    
+    .stats-highlight {
+      color: #ffa500;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
   <div class="app">
-    <h1>Velas Virtuais — de sua Pombagira</h1>
+    <h1>Velas Virtuais de sua Pombagira</h1>
     <p class="lead">Clique em uma vela para acender ou apagar. Cada vela traz uma bênção especial para iluminar seu caminho.</p>
 
     <section class="grid" id="grid"></section>
 
     <div class="counters-container">
-      <p id="counters">Acendidas: 0 | Apagadas: 0</p>
-      <p id="visitorBox">Visitantes: <span id="visitorCount">1.234</span></p>
+      <p id="counters">Total de Velas Acesas: <span class="stats-highlight" id="totalAcesas">0</span> | Total de Velas Apagadas: <span class="stats-highlight" id="totalApagadas">0</span></p>
     </div>
     
-    <p class="footer">Que a luz dessas velas ilumine seu caminho e traga bênçãos à sua vida</p>
+    <p class="footer">Que a luz dessas velas ilumine seu caminho e traga bênçãos à sua vida. Alexia Luz de Ferro - Alexia Rosa de Fogo</p>
   </div>
 
   <!-- Sons -->
@@ -237,11 +242,13 @@
       ["#d32f2f","#fff176"]             // vermelha + amarela
     ];
 
-    let acesasCount = parseInt(localStorage.getItem('acesas')||'0');
-    let apagadasCount = parseInt(localStorage.getItem('apagadas')||'0');
+    // Inicializar contadores totais
+    let totalAcesas = parseInt(localStorage.getItem('totalAcesas') || '1247');
+    let totalApagadas = parseInt(localStorage.getItem('totalApagadas') || '856');
 
     function updateCounters(){
-      document.getElementById('counters').innerText = `Acendidas: ${acesasCount} | Apagadas: ${apagadasCount}`;
+      document.getElementById('totalAcesas').innerText = totalAcesas;
+      document.getElementById('totalApagadas').innerText = totalApagadas;
     }
 
     function createCandle(index){
@@ -294,15 +301,17 @@
         sound.currentTime = 0;
         sound.play();
         
-        // Atualizar contadores
+        // Atualizar contadores totais
         if(isLit){
-          acesasCount++;
+          totalAcesas++;
         } else {
-          apagadasCount++;
+          totalApagadas++;
         }
         
-        localStorage.setItem('acesas', acesasCount);
-        localStorage.setItem('apagadas', apagadasCount);
+        // Salvar no localStorage para persistência
+        localStorage.setItem('totalAcesas', totalAcesas);
+        localStorage.setItem('totalApagadas', totalApagadas);
+        
         updateCounters();
       });
 
