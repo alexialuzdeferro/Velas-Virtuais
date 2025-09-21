@@ -1,176 +1,327 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Velas Virtuais das Pombagiras</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Velas Virtuais — de sua Pombagira</title>
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
     body {
-      background: #111;
+      margin: 0; 
+      min-height: 100vh; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0b0909; 
+      background-image: radial-gradient(circle at center, #1a1717 0%, #0b0909 100%);
       color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
       padding: 20px;
     }
-
-    h1 {
-      margin-bottom: 10px;
-    }
-
-    .stats {
-      margin-bottom: 20px;
-      font-size: 18px;
-    }
-
-    .candle-container {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 40px;
-    }
-
-    .candle {
-      position: relative;
-      width: 40px;
-      height: 120px;
-      background: #ddd;
-      border-radius: 5px;
-      cursor: pointer;
+    
+    .app {
+      width: 100%;
+      max-width: 900px;
       text-align: center;
     }
+    
+    h1 {
+      margin: 0;
+      font-size: 2.2rem;
+      background: linear-gradient(to right, #ff9a00, #ff6600);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 15px rgba(255, 100, 0, 0.5);
+      margin-bottom: 10px;
+    }
+    
+    .lead {
+      color: #bbb;
+      font-size: 1.1rem;
+      margin: 12px 0 30px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
 
-    /* chama da vela */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+    
+    .candle {
+      background: #1b1a1a;
+      background-image: linear-gradient(to bottom, #2a2525, #151313);
+      padding: 20px;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .candle:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
+    }
+    
+    .wax {
+      width: 85px;
+      height: 150px;
+      border-radius: 20px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .wick {
+      width: 5px;
+      height: 18px;
+      background: #3a2f2f;
+      border-radius: 2px;
+      margin-top: 8px;
+      z-index: 2;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+    
     .flame {
       position: absolute;
-      top: -40px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 30px;
-      height: 50px;
-      background: radial-gradient(circle, rgba(255,200,0,1) 0%, rgba(255,100,0,0.7) 60%, rgba(255,0,0,0) 100%);
-      border-radius: 50%;
+      top: -5px;
+      z-index: 3;
       opacity: 0;
-      transition: opacity 0.4s ease, transform 0.3s ease;
-      animation: flicker 0.3s infinite;
+      transition: opacity 0.3s ease;
+      filter: drop-shadow(0 0 8px rgba(255, 100, 0, 0.9));
     }
-
-    .candle.lit .flame {
+    
+    .flame.lit {
       opacity: 1;
-      transform: translateX(-50%) scale(1.3);
+      animation: flicker 1.2s infinite alternate ease-in-out;
     }
-
+    
     @keyframes flicker {
-      0%   { transform: translateX(-50%) scale(1.2); opacity: 0.9; }
-      50%  { transform: translateX(-50%) scale(1.4); opacity: 1; }
-      100% { transform: translateX(-50%) scale(1.2); opacity: 0.85; }
+      0%, 100% {
+        transform: scale(1) translateY(0) rotate(0.5deg);
+      }
+      25% {
+        transform: scale(1.05) translateY(-2px) rotate(-0.5deg);
+      }
+      50% {
+        transform: scale(1.08) translateY(-4px) rotate(0.8deg);
+      }
+      75% {
+        transform: scale(1.03) translateY(-1px) rotate(-0.8deg);
+      }
     }
-
-    .blessing {
-      margin-top: 10px;
-      font-size: 14px;
-      max-width: 100px;
-    }
-
-    /* Cores */
-    .white { background: white; }
-    .red { background: red; }
-    .black { background: black; }
-    .yellow { background: yellow; }
-    .red-black {
-      background: linear-gradient(to right, red 50%, black 50%);
-    }
-    .red-yellow {
-      background: linear-gradient(to right, red 50%, yellow 50%);
-    }
-
-    /* Popup de bênção */
-    .popup {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 0, 50, 0.9);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-size: 16px;
+    
+    .glow {
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: rgba(255, 100, 0, 0.2);
+      top: 15px;
+      filter: blur(15px);
+      z-index: 1;
       opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-      max-width: 80%;
+      transition: opacity 0.3s ease;
     }
-
-    .popup.show {
+    
+    .flame.lit ~ .glow {
       opacity: 1;
+      animation: glowPulse 2s infinite alternate;
+    }
+    
+    @keyframes glowPulse {
+      0% {
+        opacity: 0.2;
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 0.35;
+        transform: scale(1.2);
+      }
+    }
+    
+    .phrase {
+      font-size: 0.95rem;
+      text-align: center;
+      color: #ddd;
+      min-height: 45px;
+      line-height: 1.4;
+      padding: 0 5px;
+    }
+    
+    .phrase strong {
+      color: #fff;
+      text-shadow: 0 0 8px rgba(255, 100, 100, 0.4);
+    }
+    
+    .counters-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    #counters, #visitorBox {
+      font-size: 1rem;
+      color: #bbb;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px 20px;
+      border-radius: 12px;
+      display: inline-block;
+      min-width: 180px;
+    }
+    
+    .footer {
+      margin-top: 30px;
+      color: #777;
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <h1>Velas Virtuais das Pombagiras</h1>
+  <div class="app">
+    <h1>Velas Virtuais — de sua Pombagira</h1>
+    <p class="lead">Clique em uma vela para acender ou apagar. Cada vela traz uma bênção especial para iluminar seu caminho.</p>
 
-  <div class="stats">
-    Velas acesas: <span id="countOn">0</span> | 
-    Velas apagadas: <span id="countOff">0</span>
+    <section class="grid" id="grid"></section>
+
+    <div class="counters-container">
+      <p id="counters">Acendidas: 0 | Apagadas: 0</p>
+      <p id="visitorBox">Visitantes: <span id="visitorCount">1.234</span></p>
+    </div>
+    
+    <p class="footer">Que a luz dessas velas ilumine seu caminho e traga bênçãos à sua vida</p>
   </div>
 
-  <div class="candle-container" id="candleContainer"></div>
-
-  <div class="popup" id="popup"></div>
-
   <!-- Sons -->
-  <audio id="soundOn" src="acender.mp3"></audio>
-  <audio id="soundOff" src="apagar.mp3"></audio>
+  <audio id="soundOn" preload="auto">
+    <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
+  </audio>
+  <audio id="soundOff" preload="auto">
+    <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
+  </audio>
 
   <script>
-    const blessings = [
-      "Laroyê, que a luz desta vela ilumine seus caminhos.",
-      "Proteção e força em cada passo.",
-      "A chama guia sua jornada com amor.",
-      "Que a escuridão se transforme em aprendizado.",
-      "A união das cores traz equilíbrio espiritual.",
-      "Luz, coragem e sabedoria sempre presentes."
+    const PHRASES = [
+      'Proteção e luz no seu caminho.',
+      'Mojuba — que a força te acompanhe.',
+      'Que o amor cure e guarde seu passo.',
+      'Aviso: seja forte, caminhe com cuidado.',
+      'Que as encruzilhadas se abram a seu favor.',
+      'Laroyê — salve as mães, salve a luz.'
     ];
 
-    const colors = ["white", "red", "black", "yellow", "red-black", "red-yellow"];
-    const container = document.getElementById("candleContainer");
-    const popup = document.getElementById("popup");
+    // cores das velas
+    const COLORS = [
+      ["#f5f5f5","#e6e6e6"],           // branca
+      ["#d32f2f","#b71c1c"],            // vermelha
+      ["#212121","#000000"],            // preta
+      ["#fff176","#ffd54f"],            // amarela
+      ["#d32f2f","#212121"],            // vermelha + preta
+      ["#d32f2f","#fff176"]             // vermelha + amarela
+    ];
 
-    let countOn = 0;
-    let countOff = 0;
+    let acesasCount = parseInt(localStorage.getItem('acesas')||'0');
+    let apagadasCount = parseInt(localStorage.getItem('apagadas')||'0');
 
-    const soundOn = document.getElementById("soundOn");
-    const soundOff = document.getElementById("soundOff");
-
-    function showPopup(text) {
-      popup.textContent = text;
-      popup.classList.add("show");
-      setTimeout(() => {
-        popup.classList.remove("show");
-      }, 3000);
+    function updateCounters(){
+      document.getElementById('counters').innerText = `Acendidas: ${acesasCount} | Apagadas: ${apagadasCount}`;
     }
 
-    colors.forEach((color, i) => {
-      const div = document.createElement("div");
-      div.classList.add("candle", color);
-      div.innerHTML = `<div class="flame"></div><div class="blessing">${blessings[i]}</div>`;
+    function createCandle(index){
+      const wrap = document.createElement('div');
+      wrap.className='candle';
+      
+      const wax = document.createElement('div');
+      wax.className='wax';
+      wax.style.background=`linear-gradient(to bottom, ${COLORS[index][0]}, ${COLORS[index][1]})`;
+      
+      // Adicionar efeito de brilho
+      const glow = document.createElement('div');
+      glow.className = 'glow';
+      wax.appendChild(glow);
 
-      div.addEventListener("click", () => {
-        const lit = div.classList.toggle("lit");
-        if(lit){
-          soundOn.currentTime = 0;
-          soundOn.play();
-          countOn++;
-          document.getElementById("countOn").innerText = countOn;
-          showPopup(blessings[i]);
+      const flame = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      flame.setAttribute('viewBox','0 0 24 40');
+      flame.setAttribute('width','44');
+      flame.setAttribute('height','60');
+      flame.classList.add('flame');
+      flame.innerHTML = `
+        <defs>
+          <linearGradient id="grad${index}" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#fffc00;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#ff8800;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#ff5000;stop-opacity:0.8" />
+          </linearGradient>
+        </defs>
+        <path d="M12 2 C8 8 4 14 12 38 C20 14 16 8 12 2 Z" fill="url(#grad${index})"/>
+      `;
+
+      const wick = document.createElement('div');
+      wick.className='wick';
+      
+      wax.appendChild(flame);
+      wax.appendChild(wick);
+
+      const phrase = document.createElement('div');
+      phrase.className='phrase';
+      phrase.innerHTML = `<strong>${PHRASES[index%PHRASES.length]}</strong>`;
+
+      wrap.appendChild(wax);
+      wrap.appendChild(phrase);
+
+      wax.addEventListener('click', ()=>{
+        const isLit = flame.classList.toggle('lit');
+        
+        // Tocar som
+        const sound = document.getElementById(isLit ? 'soundOn':'soundOff');
+        sound.currentTime = 0;
+        sound.play();
+        
+        // Atualizar contadores
+        if(isLit){
+          acesasCount++;
         } else {
-          soundOff.currentTime = 0;
-          soundOff.play();
-          countOff++;
-          document.getElementById("countOff").innerText = countOff;
+          apagadasCount++;
         }
+        
+        localStorage.setItem('acesas', acesasCount);
+        localStorage.setItem('apagadas', apagadasCount);
+        updateCounters();
       });
 
-      container.appendChild(div);
-    });
+      return wrap;
+    }
+
+    function render(){
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      
+      for(let i=0; i<6; i++){
+        grid.appendChild(createCandle(i));
+      }
+      
+      updateCounters();
+    }
+    
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', render);
   </script>
 </body>
 </html>
