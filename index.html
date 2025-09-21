@@ -1,69 +1,110 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Velas Virtuais — Alexia Luz de Ferro</title>
+  <meta charset="UTF-8">
+  <title>Velas Virtuais</title>
   <style>
     body {
-      margin:0; 
-      min-height:100vh; 
-      font-family: Inter, sans-serif;
-      background:#0b0909; 
-      color:#fff;
-      display:flex; 
-      align-items:center; 
-      justify-content:center;
-      padding:20px;
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
     }
-    .app {width:100%;max-width:900px}
-    h1 {margin:0;font-size:1.3rem}
-    .lead {color:#bbb;font-size:0.95rem;margin:6px 0 14px}
 
-    .grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:18px}
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .stats {
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    .candle-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 40px;
+    }
+
     .candle {
-      background:#1b1a1a;
-      padding:16px;border-radius:16px;
-      display:flex;flex-direction:column;align-items:center;gap:8px;
-      box-shadow:0 6px 16px rgba(0,0,0,0.6);
+      position: relative;
+      width: 40px;
+      height: 120px;
+      background: #ddd;
+      border-radius: 5px;
+      cursor: pointer;
     }
-    .wax {
-      width:70px;height:120px;border-radius:18px;
-      display:flex;align-items:flex-start;justify-content:center;
-      position:relative;cursor:pointer;
+
+    /* chama da vela */
+    .flame {
+      position: absolute;
+      top: -40px; /* sobe mais a chama */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 30px;   /* largura maior */
+      height: 50px;  /* altura maior */
+      background: radial-gradient(circle, rgba(255,200,0,1) 0%, rgba(255,100,0,0.7) 60%, rgba(255,0,0,0) 100%);
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.4s ease, transform 0.3s ease;
+      animation: flicker 0.3s infinite;
     }
-    .wick {width:4px;height:14px;background:#3a2f2f;border-radius:2px;margin-top:6px;z-index:2}
-    .flame {position:absolute;top:4px;z-index:3;opacity:0;transition:opacity .25s}
-    .flame.lit {opacity:1;animation:flicker 1s infinite}
+
+    /* quando acesa */
+    .candle.lit .flame {
+      opacity: 1;
+      transform: translateX(-50%) scale(1.3); /* chama maior */
+    }
+
+    /* animação tremeluzente */
     @keyframes flicker {
-      0%{transform:translateY(0) scale(1)}
-      50%{transform:translateY(-2px) scale(1.05)}
-      100%{transform:translateY(0) scale(1)}
+      0%   { transform: translateX(-50%) scale(1.2); opacity: 0.9; }
+      50%  { transform: translateX(-50%) scale(1.4); opacity: 1; }
+      100% { transform: translateX(-50%) scale(1.2); opacity: 0.85; }
     }
-    .phrase {font-size:0.85rem;text-align:center;color:#ccc;min-height:38px}
-    .phrase strong {color:#fff}
-    #counters, #visitorBox {margin-top:12px;font-size:0.9rem;color:#bbb}
+
+    .blessing {
+      margin-top: 10px;
+      font-size: 14px;
+      max-width: 100px;
+    }
+
+    /* Cores das velas */
+    .white { background: white; }
+    .red { background: red; }
+    .black { background: black; }
+    .yellow { background: yellow; }
+    .red-black {
+      background: linear-gradient(to right, red 50%, black 50%);
+    }
+    .red-yellow {
+      background: linear-gradient(to right, red 50%, yellow 50%);
+    }
+
   </style>
 </head>
 <body>
-  <div class="app">
-    <h1>Velas Virtuais — Alexia Luz de Ferro</h1>
-    <p class="lead">Clique em uma vela para acender/apagar. Cada uma traz uma bênção.</p>
+  <h1>Velas Virtuais das Pombagiras</h1>
 
-    <section class="grid" id="grid"></section>
-
-    <p id="counters">Acendidas: 0 | Apagadas: 0</p>
-    <p id="visitorBox">Visitantes: <span id="visitorCount">0</span></p>
+  <div class="stats">
+    Entradas no site: <span id="visits">0</span><br>
+    Velas acesas: <span id="countOn">0</span> | 
+    Velas apagadas: <span id="countOff">0</span>
   </div>
 
+  <div class="candle-container" id="candleContainer"></div>
+
   <!-- Sons -->
-  <audio id="soundOn" preload="auto"><source src="acender.mp3" type="audio/mpeg"></audio>
-  <audio id="soundOff" preload="auto"><source src="apagar.mp3" type="audio/mpeg"></audio>
+  <audio id="soundOn" src="acender.mp3"></audio>
+  <audio id="soundOff" src="apagar.mp3"></audio>
 
   <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
   <script>
+    // Config Firebase (substitua pelos seus dados do Firebase!)
     const firebaseConfig = {
       apiKey: "SUA_API_KEY",
       authDomain: "SEU_PROJETO.firebaseapp.com",
@@ -73,80 +114,58 @@
       messagingSenderId: "SEU_ID",
       appId: "SEU_APP_ID"
     };
-    firebase.initializeApp(firebaseConfig);
+
+    const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const visitorRef = db.ref('visitantes');
-    visitorRef.transaction(c => (c||0)+1);
-    visitorRef.on('value', snap=>{
-      document.getElementById('visitorCount').innerText = snap.val()||0;
-    });
-  </script>
 
-  <script>
-    const PHRASES = [
-      'Proteção e luz no seu caminho.',
-      'Mojuba — que a força te acompanhe.',
-      'Que o amor cure e guarde seu passo.',
-      'Aviso: seja forte, caminhe com cuidado.',
-      'Que as encruzilhadas se abram a seu favor.',
-      'Laroyê — salve as mães, salve a luz.'
+    // Referências
+    const visitRef = db.ref("visits");
+    const countOnRef = db.ref("countOn");
+    const countOffRef = db.ref("countOff");
+
+    // Incrementa visitas
+    visitRef.transaction(val => (val || 0) + 1);
+
+    // Atualiza tela ao mudar valores
+    visitRef.on("value", snap => document.getElementById("visits").innerText = snap.val() || 0);
+    countOnRef.on("value", snap => document.getElementById("countOn").innerText = snap.val() || 0);
+    countOffRef.on("value", snap => document.getElementById("countOff").innerText = snap.val() || 0);
+
+    // Sons
+    const soundOn = document.getElementById("soundOn");
+    const soundOff = document.getElementById("soundOff");
+
+    // Velas
+    const blessings = [
+      "Laroyê, que a luz desta vela ilumine seus caminhos.",
+      "Proteção e força em cada passo.",
+      "A chama guia sua jornada com amor.",
+      "Que a escuridão se transforme em aprendizado.",
+      "A união das cores traz equilíbrio espiritual.",
+      "Luz, coragem e sabedoria sempre presentes."
     ];
 
-    // cores das velas
-    const COLORS = [
-      ["#fff","#fff"],           // branca
-      ["#b71c1c","#b71c1c"],     // vermelha
-      ["#000","#000"],           // preta
-      ["#ffeb3b","#ffeb3b"],     // amarela
-      ["#b71c1c","#000"],        // vermelha + preta
-      ["#b71c1c","#ffeb3b"]      // vermelha + amarela
-    ];
+    const colors = ["white", "red", "black", "yellow", "red-black", "red-yellow"];
+    const container = document.getElementById("candleContainer");
 
-    let acesasCount = parseInt(localStorage.getItem('acesas')||'0');
-    let apagadasCount = parseInt(localStorage.getItem('apagadas')||'0');
+    colors.forEach((color, i) => {
+      const div = document.createElement("div");
+      div.classList.add("candle", color);
+      div.innerHTML = `<div class="flame"></div><div class="blessing">${blessings[i]}</div>`;
 
-    function updateCounters(){
-      document.getElementById('counters').innerText = `Acendidas: ${acesasCount} | Apagadas: ${apagadasCount}`;
-    }
-
-    function createCandle(index){
-      const wrap = document.createElement('div');wrap.className='candle';
-      const wax = document.createElement('div');wax.className='wax';
-      wax.style.background=`linear-gradient(${COLORS[index][0]},${COLORS[index][1]})`;
-
-      const flame = document.createElementNS('http://www.w3.org/2000/svg','svg');
-      flame.setAttribute('viewBox','0 0 24 40');
-      flame.setAttribute('width','34');
-      flame.classList.add('flame');
-      flame.innerHTML = `<path d="M12 2 C8 10 18 14 12 28 C6 14 16 10 12 2 Z" fill="url(#grad${index})"/>`;
-
-      const wick = document.createElement('div');wick.className='wick';
-      wax.appendChild(flame);wax.appendChild(wick);
-
-      const phrase = document.createElement('div');phrase.className='phrase';
-      phrase.innerHTML = `<strong>${PHRASES[index%PHRASES.length]}</strong>`;
-
-      wrap.appendChild(wax);wrap.appendChild(phrase);
-
-      wax.addEventListener('click', ()=>{
-        const isLit = flame.classList.toggle('lit');
-        document.getElementById(isLit ? 'soundOn':'soundOff').play();
-        if(isLit){acesasCount++;}else{apagadasCount++;}
-        localStorage.setItem('acesas',acesasCount);
-        localStorage.setItem('apagadas',apagadasCount);
-        updateCounters();
+      div.addEventListener("click", () => {
+        const lit = div.classList.toggle("lit");
+        if(lit){
+          soundOn.play();
+          countOnRef.transaction(val => (val || 0) + 1);
+        } else {
+          soundOff.play();
+          countOffRef.transaction(val => (val || 0) + 1);
+        }
       });
 
-      return wrap;
-    }
-
-    function render(){
-      const grid=document.getElementById('grid');
-      grid.innerHTML='';
-      for(let i=0;i<6;i++){grid.appendChild(createCandle(i));}
-      updateCounters();
-    }
-    render();
+      container.appendChild(div);
+    });
   </script>
 </body>
 </html>
