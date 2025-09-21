@@ -54,7 +54,6 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 25px;
-      margin-bottom: 30px;
     }
     
     .candle {
@@ -169,34 +168,10 @@
       text-shadow: 0 0 8px rgba(255, 100, 100, 0.4);
     }
     
-    .counters-container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-    
-    #counters {
-      font-size: 1.1rem;
-      color: #ffa500;
-      background: rgba(0, 0, 0, 0.3);
-      padding: 15px 25px;
-      border-radius: 15px;
-      display: inline-block;
-      min-width: 250px;
-      box-shadow: 0 0 15px rgba(255, 165, 0, 0.3);
-    }
-    
     .footer {
       margin-top: 30px;
       color: #777;
       font-size: 0.9rem;
-    }
-    
-    .stats-highlight {
-      color: #ffa500;
-      font-weight: bold;
     }
   </style>
 </head>
@@ -206,23 +181,23 @@
     <p class="lead">Clique em uma vela para acender ou apagar. Cada vela traz uma bênção especial para iluminar seu caminho.</p>
 
     <section class="grid" id="grid"></section>
-
-    <div class="counters-container">
-      <p id="counters">Total de Velas Acesas: <span class="stats-highlight" id="totalAcesas">0</span> | Total de Velas Apagadas: <span class="stats-highlight" id="totalApagadas">0</span></p>
-    </div>
     
-    <p class="footer">Que a luz dessas velas ilumine seu caminho e traga bênçãos à sua vida. Alexia Luz de Ferro - Alexia Rosa de Fogo</p>
+    <p class="footer">Que a luz dessas velas ilumine seu caminho e traga bênçãos à sua vida.</p>
   </div>
 
-  <!-- Sons -->
-  <audio id="soundOn" preload="auto">
-    <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
-  </audio>
-  <audio id="soundOff" preload="auto">
-    <source src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV" type="audio/mpeg">
-  </audio>
-
   <script>
+    // Sons base64 para acender e apagar velas
+    const createAudio = (base64) => {
+      const audio = new Audio();
+      audio.src = base64;
+      audio.preload = 'auto';
+      return audio;
+    };
+
+    const soundOn = createAudio('data:audio/mp3;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV');
+    
+    const soundOff = createAudio('data:audio/mp3;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gTGFTb25vdGhlcXVlLm9yZwBURU5DAAAAHQAAA1N3aXRjaCBQbHVzIMKpIE5DSCBTb2Z0d2FyZQBUSVQyAAAABgAAAzIyMzUAVFNTRQAAAA8AAANMYXZmNTcuODMuMTAwAAAAAAAAAAAAAAD/80DEAAAAA0gAAAAATEFNRTMuMTAwVVVVVVVVVVVVVUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQsRbAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVf/zQMSkAAADSAAAAABVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV');
+
     const PHRASES = [
       'Proteção e luz no seu caminho.',
       'Mojuba — que a força te acompanhe.',
@@ -241,15 +216,6 @@
       ["#d32f2f","#212121"],            // vermelha + preta
       ["#d32f2f","#fff176"]             // vermelha + amarela
     ];
-
-    // Inicializar contadores totais
-    let totalAcesas = parseInt(localStorage.getItem('totalAcesas') || '1247');
-    let totalApagadas = parseInt(localStorage.getItem('totalApagadas') || '856');
-
-    function updateCounters(){
-      document.getElementById('totalAcesas').innerText = totalAcesas;
-      document.getElementById('totalApagadas').innerText = totalApagadas;
-    }
 
     function createCandle(index){
       const wrap = document.createElement('div');
@@ -297,22 +263,9 @@
         const isLit = flame.classList.toggle('lit');
         
         // Tocar som
-        const sound = document.getElementById(isLit ? 'soundOn':'soundOff');
+        const sound = isLit ? soundOn : soundOff;
         sound.currentTime = 0;
-        sound.play();
-        
-        // Atualizar contadores totais
-        if(isLit){
-          totalAcesas++;
-        } else {
-          totalApagadas++;
-        }
-        
-        // Salvar no localStorage para persistência
-        localStorage.setItem('totalAcesas', totalAcesas);
-        localStorage.setItem('totalApagadas', totalApagadas);
-        
-        updateCounters();
+        sound.play().catch(e => console.log("Reprodução de áudio impedida pelo navegador: ", e));
       });
 
       return wrap;
@@ -325,8 +278,6 @@
       for(let i=0; i<6; i++){
         grid.appendChild(createCandle(i));
       }
-      
-      updateCounters();
     }
     
     // Inicializar
